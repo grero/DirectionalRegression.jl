@@ -11,7 +11,7 @@ X = 2*rand(1000,3)-1
 for i in 1:length(θ)
 	 θ[i] = rand(sampler(VonMises(μ + μ0[i], κ)))
 end
-rr = fitmodel(X, θ, 2*pi*rand()-pi, 0.1+3*rand(); tol=1e-3, maxiter=100)
+rr = DirectionalRegression.fitmodel(X, θ, 2*pi*rand()-pi, 0.1+3*rand(); tol=1e-3, maxiter=100)
 ```
 
 
