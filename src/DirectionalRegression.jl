@@ -260,18 +260,4 @@ function fitmodel(X::Array{Float64,2}, θ::Array{Float64,1}, μ=0.0, κ = 1.0;to
 	VonMisesResult(VonMisesModel(βp, μp, κp), θ, LL)
 end
 
-function test(μ=0, κ=1.0)
-	X = 2*rand(1000,3)-1
-	β = [0.181689,0.533594,0.132475]
-	μ0 = g(X*β);
-	θ = zeros(size(X,1))
-	for i in 1:length(θ)
-		 θ[i] = rand(sampler(VonMises(μ + μ0[i], κ)))
-	end
-	βp = fitmodel(X, θ, 2*pi*rand()-pi, 0.1+3*rand(); tol=1e-3, maxiter=100)
-	μp, Aκp = get_params(βp, X, θ)
-	κp = get_κ(Aκp)
-	LL = loglikehood(θ, κp, μp, βp, X')
-	β, βp, μp, κp, LL
-end
 end #module

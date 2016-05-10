@@ -41,10 +41,27 @@ function test_func2()
 			 βn[j] += δβ[j]
 		 end
 	 end
-	 print(βn)
 	 Base.Test.@test sumabs2(β - βn) < 1e-2
+end
+
+function test_model(μ=0.0, κ=1.0)
+	X = 2*rand(1000,3)-1
+	β = [0.181689,0.533594,0.132475]
+	μ0 = DR.g(X*β);
+	θ = zeros(size(X,1))
+	for i in 1:length(θ)
+		 θ[i] = rand(DR.sampler(DR.VonMises(μ + μ0[i], κ)))
+	end
+	rr = DR.fitmodel(X, θ, 2*pi*rand()-pi, 0.1+3*rand(); tol=1e-3, maxiter=100)
+end
+
+function test_mm()
+	srand(1234)
+	rr = test_model()
+	Base.Test.@test_approx_eq rr.model.β [0.14180133584151983, 0.38683194741667004, 0.11747965755230998]
 end
 
 test_get_κ()
 test_func3_vs_func4()
 test_func2()
+test_mm()
