@@ -54,8 +54,12 @@ function get_κ(θ::Array{Float64,1}, args...)
 	get_κ(sqrt(real(N/(N-1)*(R2 - 1/N))),args...)
 end
 
-function loglikehood(θ::Array{Float64,1}, κ::Real, μ::Real, β::Array{Float64,1},X::Array{Float64,2})
-  ncells,ntrials = size(X)
+function loglikehood(θ::Array{Float64,1},X::Array{Float64,2}, model::VonMisesModel)
+	loglikehood(θ, X, model.κ, model.μ, model.β)
+end
+
+function loglikehood(θ::Array{Float64,1}, X::Array{Float64,2}, κ::Real, μ::Real, β::Array{Float64,1})
+	ntrials = length(θ)
   LL = -2*pi*ntrials*log(I0(κ))
   l = 0.0
 	η = X'*β
@@ -192,7 +196,7 @@ function fitmodel(X::Array{Float64,2}, θ::Array{Float64,1}, μ=0.0, κ = 1.0;to
 	while !fitted && restarts <= max_auto_restarts
 		β = 0.5*(rand(size(X,2))-0.5)
 		βp = zeros(β)
-		LL_old = loglikehood(θ,κ, μ, β, X')
+		LL_old = loglikehood(θ,X',κ, μ, β)
 		_isnan = false
 		try
 			while true
@@ -214,7 +218,7 @@ function fitmodel(X::Array{Float64,2}, θ::Array{Float64,1}, μ=0.0, κ = 1.0;to
 					β = copy(βp)
 				end
 				κp = get_κ(Aκp)
-				LL = loglikehood(θ,κp, μp, βp, X')
+				LL = loglikehood(θ,X', κp, μp, βp)
 				if isnan(LL)
 					if verbose > 0 
 						println("NaN detected")
@@ -252,7 +256,7 @@ function fitmodel(X::Array{Float64,2}, θ::Array{Float64,1}, μ=0.0, κ = 1.0;to
 	βp
 	μp,Aκp = get_params(βp, X, θ)
 	κp = get_κ(Aκp)
-	LL = loglikehood(θ,κp, μp, βp, X')
+	LL = loglikehood(θ,X', κp, μp, βp)
 	VonMisesResult(VonMisesModel(βp, μp, κp), θ, LL)
 end
 
