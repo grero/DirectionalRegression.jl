@@ -6,6 +6,10 @@ import Base.Test
 function test_get_κ()
 	κ = DR.get_κ(DR.I1(1.5)/DR.I0(1.5))
 	Base.Test.@test_approx_eq κ 1.5	
+	srand(1234)
+	_θ = rand(DR.sampler(DR.VonMises(0.0, 2.0)),1000)
+	κ = DR.get_κ(_θ)
+	Base.Test.@test_approx_eq κ 1.9731144166509358
 end
 
 function test_func3_vs_func4()
